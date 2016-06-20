@@ -44,14 +44,11 @@ class SlackClient(object):
         # in the future, this should handle some events internally i.e. channel
         # creation
         if self.server:
-            json_data = self.server.websocket_safe_read()
-            data = []
-            if json_data != '':
-                for d in json_data.split('\n'):
-                    data.append(json.loads(d))
-            for item in data:
-                self.process_changes(item)
-            return data
+            for item in self.server.websocket_safe_read():
+                data = json.loads(item)
+                yield data
+                if item:
+                    self.process_changes(data)
         else:
             raise SlackNotConnected
 
